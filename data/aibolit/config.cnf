@@ -1,0 +1,11 @@
+auto_update_base=0
+last_archive_link="https://revisium.com/ai/index.php?q=725864288161364292534328174835997"
+cron_type="off"
+cron_time=0
+scan_memory=512
+email=""
+scan_fast_mode=0
+send_email_detected=0
+max_thread=2
+last_aibolit_update=1606389718
+cron_last=1606251606
