@@ -183,6 +183,27 @@ class AibolitScanner
     }
     
     /**
+     * Create scan start report
+     * @return boolean
+     */
+    
+    public static function createLogStartScanned($site)
+    {
+        if (file_exists(self::getProgressPath() . $site)) {
+            unlink(self::getProgressPath() . $site);
+        }
+        
+        $fp = fopen(self::getProgressPath() . $site, 'w+');
+        fwrite($fp, json_encode(array(
+            'progress'  => '0',
+            'updated'   => time(),
+        )));
+        fclose($fp);
+        
+        return true;
+    }
+    
+    /**
      * Get scanner path
      * @return string
      */
@@ -194,7 +215,7 @@ class AibolitScanner
     
     /**
      * Get site info
-     * @return string
+     * @return array
      */
     
     public static function getSiteInfo($site)
@@ -228,7 +249,7 @@ class AibolitScanner
     
     /**
      * Get progress scan site
-     * @return string
+     * @return array|boolean
      */
     
     public static function getProgressSite($site)
@@ -252,7 +273,7 @@ class AibolitScanner
     
     /**
      * Get report site
-     * @return string
+     * @return array|boolean
      */
     
     public static function getReportSite($site)
@@ -266,7 +287,7 @@ class AibolitScanner
     
     /**
      * Get report site
-     * @return string
+     * @return boolean
      */
     
     public static function saveReportSite($site, $report)

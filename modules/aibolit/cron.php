@@ -352,6 +352,7 @@ class AibolitCron
         AiBolitHelper::toLog('Start scan ' . $site);
         AibolitScanner::removeLogs($site);
         AibolitScanner::removeLogsEndScan($site);
+        AibolitScanner::createLogStartScanned($site);
         AibolitModel::setScannedStatus($site);
         $command =  '/usr/bin/php70/bin/php /etc/brainy/modules/aibolit/console.php'
                   . ' --scanstart'
