@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.0
  */
 
 require_once('/etc/brainy/modules/aibolit/load.module.php');

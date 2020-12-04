@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.1
  */
 
 class AiBolitController
@@ -19,13 +19,13 @@ class AiBolitController
     
     /**
      * Smarty
-     * @var object 
+     * @var object
      */
     public $smarty;
     
     /**
      * Smarty template
-     * @var object 
+     * @var object
      */
     
     public $tpl;
@@ -41,7 +41,8 @@ class AiBolitController
      * @return AiBolitController
      */
     
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
             self::$instance = new self();
         }
@@ -126,6 +127,7 @@ class AiBolitController
         $this->smarty->assign('scanner_version', htmlspecialchars(AibolitScanner::getVersion()));
         $this->smarty->assign('sites', AibolitModel::getAllSites());
         $this->smarty->assign('module_version', AiBolitHelper::getModuleVersion());
+        $this->smarty->assign('module_history', AiBolitHelper::getModuleHistory());
         $this->tpl->out = $this->smarty->fetch('aibolit/index.tpl');
     }
     
@@ -175,7 +177,7 @@ class AiBolitController
     }
     
     private function get_edit_fileAction()
-    {            
+    {
         $site = $_REQUEST['site'];
         $file = $_REQUEST['file'];
         
@@ -196,7 +198,7 @@ class AiBolitController
     }
     
     private function save_fileAction()
-    {            
+    {
         $site = $_REQUEST['site'];
         $file = $_REQUEST['file'];
         
@@ -220,7 +222,7 @@ class AiBolitController
     }
     
     private function remove_fileAction()
-    {            
+    {
         $site = $_REQUEST['site'];
         $file = $_REQUEST['file'];
         
@@ -302,6 +304,19 @@ class AiBolitController
         }
         
         AiBolitHelper::_exit();
+    }
+    
+    private function set_auto_scanAction()
+    {
+        $site = $_REQUEST['site'];
+        $type = $_REQUEST['type'] == 1 ? true : false;
+        
+        if (AiBolitHelper::accessToSite($site) !== true) {
+            AiBolitHelper::ajaxError('You don\'t have access to selected site');
+        }
+        
+        AibolitModel::setAutoScanSite($site, $type);
+        AiBolitHelper::ajaxSuccess();
     }
     
     private function save_configAction()

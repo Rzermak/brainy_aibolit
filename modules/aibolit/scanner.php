@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.0
  */
 
 class AibolitScanner
@@ -355,7 +355,7 @@ class AibolitScanner
     }
     
     /**
-     * Get queue data 
+     * Get queue data
      * @return array
      */
     
@@ -365,7 +365,7 @@ class AibolitScanner
     }
     
     /**
-     * Set queue data 
+     * Set queue data
      * @return array
      */
     
@@ -460,7 +460,8 @@ class AibolitScanner
      * @return boolean
      */
     
-    public static function removeProgressScan($site) {
+    public static function removeProgressScan($site)
+    {
         if (!file_exists(self::getProgressPath() . $site)) {
             return true;
         }

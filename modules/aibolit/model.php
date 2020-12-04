@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.1
  */
 
 class AibolitModel
@@ -91,10 +91,12 @@ class AibolitModel
                 return false;
             }
             
+            $autoScanSites = self::getAutoScanSites();
             foreach ($users as $user => $userData) {
                 $sites = AiBolitHelper::getServer()->get_virt_hosts($user);
                 foreach ($sites as $site) {
                     $site['user'] = $user;
+                    $site['auto_scan'] = in_array($site['domain'], $autoScanSites) ? true : false;
                     $site['scanner'] = AibolitScanner::getSiteInfo($site['domain']);
                     self::$sites[$site['domain']] = $site;
                 }
@@ -102,6 +104,37 @@ class AibolitModel
         }
         
         return self::$sites;
+    }
+    
+    /**
+     * Get auto scanning sites
+     * @return array
+     */
+    
+    public static function getAutoScanSites()
+    {
+        $autoScanSites = array();
+        $config = AiBolitHelper::getConfig();
+        foreach ($config as $param => $value) {
+            if (preg_match('/as\_(.*)/is', $param) && $value == 1) {
+                $autoScanSites[] = preg_replace('/as\_(.*)/is', '\\1', $param);
+            }
+        }
+        
+        return $autoScanSites;
+    }
+    
+    /**
+     * Set auto scanning site
+     * @param string $site
+     * @param boolean $type
+     */
+    
+    public static function setAutoScanSite($site, $type = false)
+    {
+        $data = array();
+        $data['as_' . $site] = $type;
+        AibolitHelper::setConfig($data);
     }
     
     /**

@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.1
  */
 
 class AibolitCron
@@ -229,9 +229,9 @@ class AibolitCron
     
     public static function checkExistsPhp()
     {
-       $server_info = AiBolitHelper::getServer()->get_info();
-       $php = isset($server_info['phparr'][self::getScannerPhpVersion()]) ? $server_info['phparr'][self::getScannerPhpVersion()] : 0;
-       return $php ? true : false;
+        $server_info = AiBolitHelper::getServer()->get_info();
+        $php = isset($server_info['phparr'][self::getScannerPhpVersion()]) ? $server_info['phparr'][self::getScannerPhpVersion()] : 0;
+        return $php ? true : false;
     }
     
     /**
@@ -251,28 +251,102 @@ class AibolitCron
             }
         }
         
+        if ($config['auto_scan_srart']) {
+            $sitesQueue = self::getQueueSites();
+            if (count($sitesQueue) <= 0) {
+                AibolitHelper::setConfig(array(
+                    'auto_scan_srart'   => 0
+                ));
+                
+                self::eventCronEnd();
+            }
+        }
+        
         if ($startTasks === true) {
             AibolitHelper::setConfig(array(
-                'cron_last'   => time(),
+                'cron_last'         => time(),
+                'auto_scan_srart'   => 1
             ));
             
-            $mail_config = AiBolitHelper::getMailConfig();
-            
-            if ($config['auto_update_base']) {
-                if (AiBolitUpdateBase::updateAuto() !== true) {
-                    if ($config['send_email_detected']) {
-                        AiBolitHelper::sendEmail($mail_config['fromWhoName'] . ' - Ai-bolit', 'Antivirus base automatic update failed', $config['email']);
-                    }
-                }
-            }
-            
-            $status = AibolitScanner::addScan('all');
-            if ($status !== true) {
+            self::cronStart();
+        }
+    }
+    
+    /**
+     * Start plans tasks
+     */
+    
+    public static function cronStart()
+    {
+        $config = AiBolitHelper::getConfig();
+        $mail_config = AiBolitHelper::getMailConfig();
+        if ($config['auto_update_base']) {
+            if (AiBolitUpdateBase::updateAuto() !== true) {
                 if ($config['send_email_detected']) {
-                    AiBolitHelper::sendEmail($mail_config['fromWhoName'] . ' - Ai-bolit', 'Error while scanning all sites', $config['email']);
+                    AiBolitHelper::sendEmail($mail_config['fromWhoName'] . ' - Ai-bolit', 'Antivirus base automatic update failed', $config['email']);
+                    AiBolitHelper::toLog('Send to email ' . $config['email'] . ': Antivirus base automatic update failed');
                 }
             }
         }
+
+        $errorSites = array();
+        $autoScanSites = AibolitModel::getAutoScanSites();
+        foreach ($autoScanSites as $site) {
+            $status = AibolitScanner::addScan($site);
+            if ($status !== true) {
+                $errorSites[] = $site;
+            }
+        }
+
+        if (count($errorSites) > 0 && $config['send_email_detected']) {
+            AiBolitHelper::sendEmail($mail_config['fromWhoName'] . ' - Ai-bolit', 'Error while scanning sites: ' . implode(', ', $errorSites), $config['email']);
+            AiBolitHelper::toLog('Send to email ' . $config['email'] . ': Error while scanning sites: ' . implode(', ', $errorSites));
+        }
+    }
+    
+    /**
+     * Event when plans tasks is end
+     */
+    
+    public static function eventCronEnd()
+    {
+        $errorSites = array();
+        $config = AiBolitHelper::getConfig();
+        $mail_config = AiBolitHelper::getMailConfig();
+        $sites = AibolitModel::getAllSites();
+        $autoScanSites = AibolitModel::getAutoScanSites();
+        
+        foreach ($autoScanSites as $site) {
+            if ($sites[$site]['scanner']['virus_detected']) {
+                $errorSites[] = $site . ' (viruses: ' . $sites[$site]['scanner']['virus_detected'] . ')';
+            }
+            if ($sites[$site]['scanner']['queue'] == AibolitModel::STATUS_ERROR) {
+                $errorSites[] = $site . ' (error scanning)';
+            }
+        }
+
+        if (count($errorSites) > 0 && $config['send_email_detected']) {
+            AiBolitHelper::sendEmail($mail_config['fromWhoName'] . ' - Ai-bolit', 'Scanner finded viruses in sites: ' . implode(', ', $errorSites), $config['email']);
+            AiBolitHelper::toLog('Send to email ' . $config['email'] . ': Scanner finded viruses in sites: ' . implode(', ', $errorSites));
+        }
+    }
+    
+    /**
+     * Get sites in queue scanning
+     * @return array
+     */
+    
+    public static function getQueueSites()
+    {
+        $sitesQueue = array();
+        $sites = AibolitModel::getAllSites();
+        foreach ($sites as $site) {
+            if (in_array($site['scanner']['queue'], array(AibolitModel::STATUS_SCANNED, AibolitModel::STATUS_QUEUE, AibolitModel::STATUS_STOP))) {
+                $sitesQueue[] = $site['domain'];
+            }
+        }
+        
+        return $sitesQueue;
     }
     
     /**

@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.0
  */
 
 if (PHP_SAPI != "cli") {
@@ -18,14 +18,14 @@ class AibolitConsole
 {
     /**
      * Stdout
-     * @var object 
+     * @var object
      */
     
     private $stdout = false;
     
     /**
      * Stdin
-     * @var object 
+     * @var object
      */
     
     private $stdin = false;
@@ -83,7 +83,8 @@ class AibolitConsole
      * @return type
      */
     
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
             self::$instance = new self();
         }
@@ -96,7 +97,8 @@ class AibolitConsole
      * @param array $argv - global variable php
      */
     
-    public function init($argv = array()) {
+    public function init($argv = array())
+    {
         $this->initConsole($argv);
         if ($this->issetArg("-h") || $this->issetArg("--help")) {
             return $this->showHelp();
@@ -281,7 +283,7 @@ class AibolitConsole
     
     public function questUser($quest, $maxSeconds = 10)
     {
-        $this->addMessage(($maxSeconds !== false ? $quest . ' (' . $maxSeconds . 's)' : $quest), false);        
+        $this->addMessage(($maxSeconds !== false ? $quest . ' (' . $maxSeconds . 's)' : $quest), false);
         if ($maxSeconds !== false) {
             $answer = '';
             $read = array($this->stdin);
@@ -366,11 +368,12 @@ HELP;
      * When scanning process ends
      */
     
-    public function completeScan($exit_code, $stat) {
+    public function completeScan($exit_code, $stat)
+    {
         $site = $this->getOneArgs(array('--site', '-s'));
         $logfile = $this->getOneArgs(array('--logfile', '-l'));
         $command =  $this->getConsoleCommand()
-                  . ' --scanend' 
+                  . ' --scanend'
                   . ' --site=' . $site
                   . ' > ' . $logfile
                   . ' >&1 & echo $!;';
@@ -379,7 +382,8 @@ HELP;
 }
 
 // When scanning process ends
-function aibolit_onComplete($exit_code, $stat) {
+function aibolit_onComplete($exit_code, $stat)
+{
     AibolitConsole::getInstance()->completeScan($exit_code, $stat);
 }
 

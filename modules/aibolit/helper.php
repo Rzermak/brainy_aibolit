@@ -5,8 +5,8 @@
  *
  * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @author      rzermak <rzermak@yandex.ru>
- * @link		https://github.com/Rzermak/brainy_aibolit
- * @version		1.0
+ * @link        https://github.com/Rzermak/brainy_aibolit
+ * @version     1.1
  */
 
 class AiBolitHelper
@@ -15,7 +15,7 @@ class AiBolitHelper
      * Module version
      */
     
-    const MODULE_VERSION = '1.0';
+    const MODULE_VERSION = '1.1';
     
     /**
      * Module parametres file path
@@ -34,6 +34,12 @@ class AiBolitHelper
      * @var string
      */
     private static $logFile = '/etc/brainy/data/aibolit/log';
+    
+    /**
+     * Module history file path
+     * @var string
+     */
+    private static $historyModuleFile = '/etc/brainy/data/aibolit/history';
         
     /**
      * Module parametres
@@ -104,6 +110,19 @@ class AiBolitHelper
     }
     
     /**
+     * Get module history
+     */
+    
+    public static function getModuleHistory()
+    {
+        if (!file_exists(self::$historyModuleFile)) {
+            return '';
+        }
+        
+        return file_get_contents(self::$historyModuleFile);
+    }
+    
+    /**
      * Get module parametres
      * @return object
      */
@@ -120,7 +139,6 @@ class AiBolitHelper
     /**
      * Save module parametres
      * @param array $data
-     * @return object
      */
     
     public static function setConfig($data)
@@ -213,6 +231,26 @@ class AiBolitHelper
     }
     
     /**
+     * Get access right to operation on the site
+     * @param string $site
+     * @return boolean
+     */
+    
+    public static function accessToSite($site)
+    {
+        if (!$site) {
+            return false;
+        }
+        
+        $sites = AibolitModel::getAllSites();
+        if (!isset($sites[$site])) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
      * Save file
      * @param string $file
      * @param string $content
@@ -237,7 +275,7 @@ class AiBolitHelper
     public static function removeFile($file)
     {
         if (file_exists($file)) {
-            unlink($file);   
+            unlink($file);
         }
         
         return true;
