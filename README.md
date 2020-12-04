@@ -26,5 +26,19 @@ To remove a module, go to your panel in the CRON settings and delete the entry
 /etc/brainy/src/compiled/php5/bin/php /etc/brainy/modules/aibolit/console.php
 ```
 
+## History
+
+Version 1.1 (04.12.2020)
+
+Add:
+- Added switch sites for auto scanning.
+- Added show module history in tab 'Info'
+
+Fix:
+- Fixed error save setting notify to email
+- Fixed error send report auto scanning to email
+
+Version 1.0 (09.11.2020)...
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
